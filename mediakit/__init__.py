@@ -66,6 +66,17 @@ from .video import (
 )
 from .analyzer import analyze, analyze_video, analyze_photo, generate_id, sha256_file
 from .image.info import ImageInfo
+from .core.extensions import (
+    VIDEO_EXTENSIONS,
+    IMAGE_EXTENSIONS,
+    AUDIO_EXTENSIONS,
+    ARCHIVE_EXTENSIONS,
+    is_video,
+    is_image,
+    is_audio,
+    is_archive,
+    get_media_type,
+)
 
 __version__ = "1.0.0"
 
@@ -117,4 +128,15 @@ __all__ = [
     "analyze_photo",
     "generate_id",
     "sha256_file",
+    
+    # Extensions
+    "VIDEO_EXTENSIONS",
+    "IMAGE_EXTENSIONS",
+    "AUDIO_EXTENSIONS",
+    "ARCHIVE_EXTENSIONS",
+    "is_video",
+    "is_image",
+    "is_audio",
+    "is_archive",
+    "get_media_type",
 ]
