@@ -42,7 +42,7 @@ class VideoInfo(IVideoInfoProvider):
         
         cmd = [
             "ffprobe", "-v", "quiet", "-print_format", "json",
-            "-show_format", "-show_streams", "-select_streams", "v:0",
+            "-show_format", "-show_streams",
             str(self.input_path)
         ]
         
@@ -74,7 +74,7 @@ class VideoInfo(IVideoInfoProvider):
         
         cmd = [
             "ffprobe", "-v", "quiet", "-print_format", "json",
-            "-show_format", "-show_streams", "-select_streams", "v:0",
+            "-show_format", "-show_streams",
             str(self.input_path)
         ]
         
@@ -124,13 +124,13 @@ class VideoInfo(IVideoInfoProvider):
             raise ValueError(f"Invalid ffprobe output: 'format' key not found")
         
         self._format_data = data["format"]
+        self._all_streams = data.get("streams", [])
         
         video_stream = None
-        if "streams" in data:
-            for stream in data["streams"]:
-                if stream.get("codec_type") == "video":
-                    video_stream = stream
-                    break
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "video":
+                video_stream = stream
+                break
         
         if video_stream is None:
             raise ValueError(f"No video stream found in '{self.input_path.name}'")
@@ -250,6 +250,140 @@ class VideoInfo(IVideoInfoProvider):
             return int(parts[0]), int(parts[1])
         except (ValueError, IndexError):
             return 1, 1
+    
+    @property
+    def sar(self) -> str:
+        """Sample Aspect Ratio (pixel aspect ratio)."""
+        self._ensure_loaded()
+        return self._stream_data.get("sample_aspect_ratio", "1:1")
+    
+    @property
+    def dar(self) -> str:
+        """Display Aspect Ratio."""
+        self._ensure_loaded()
+        return self._stream_data.get("display_aspect_ratio", f"{self.width}:{self.height}")
+    
+    @property
+    def container(self) -> str:
+        """Container format (mp4, mkv, avi, etc)."""
+        self._ensure_loaded()
+        return self._format_data.get("format_name", "").split(",")[0]
+    
+    @property
+    def video_codec(self) -> str:
+        """Video codec name (h264, hevc, vp9, etc)."""
+        return self.codec
+    
+    @property
+    def video_codec_long(self) -> str:
+        """Video codec long name."""
+        self._ensure_loaded()
+        return self._stream_data.get("codec_long_name", self.codec)
+    
+    @property
+    def video_profile(self) -> Optional[str]:
+        """Video codec profile (High, Main, Baseline, etc)."""
+        self._ensure_loaded()
+        return self._stream_data.get("profile")
+    
+    @property
+    def video_level(self) -> Optional[int]:
+        """Video codec level."""
+        self._ensure_loaded()
+        level = self._stream_data.get("level")
+        return level if level and level != -99 else None
+    
+    @property
+    def pix_fmt(self) -> str:
+        """Pixel format (yuv420p, yuv444p, etc)."""
+        self._ensure_loaded()
+        return self._stream_data.get("pix_fmt", "unknown")
+    
+    @property
+    def color_space(self) -> Optional[str]:
+        """Color space (bt709, smpte170m, etc)."""
+        self._ensure_loaded()
+        return self._stream_data.get("color_space")
+    
+    @property
+    def audio_codec(self) -> Optional[str]:
+        """Audio codec name (aac, mp3, opus, etc)."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                return stream.get("codec_name")
+        return None
+    
+    @property
+    def audio_codec_long(self) -> Optional[str]:
+        """Audio codec long name."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                return stream.get("codec_long_name")
+        return None
+    
+    @property
+    def audio_sample_rate(self) -> Optional[int]:
+        """Audio sample rate in Hz."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                sr = stream.get("sample_rate")
+                return int(sr) if sr else None
+        return None
+    
+    @property
+    def audio_channels(self) -> Optional[int]:
+        """Number of audio channels."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                return stream.get("channels")
+        return None
+    
+    @property
+    def audio_bitrate(self) -> Optional[int]:
+        """Audio bitrate in bps."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                br = stream.get("bit_rate")
+                return int(br) if br else None
+        return None
+    
+    @property
+    def tags(self) -> dict:
+        """Container tags (title, artist, encoder, creation_time, etc)."""
+        self._ensure_loaded()
+        return self._format_data.get("tags", {})
+    
+    @property
+    def video_tags(self) -> dict:
+        """Video stream tags."""
+        self._ensure_loaded()
+        return self._stream_data.get("tags", {})
+    
+    @property
+    def audio_tags(self) -> Optional[dict]:
+        """Audio stream tags."""
+        self._ensure_loaded()
+        for stream in self._all_streams:
+            if stream.get("codec_type") == "audio":
+                return stream.get("tags", {})
+        return None
+    
+    @property
+    def creation_time(self) -> Optional[str]:
+        """Creation time from container tags."""
+        self._ensure_loaded()
+        return self.tags.get("creation_time")
+    
+    @property
+    def encoder(self) -> Optional[str]:
+        """Encoder used (from container tags)."""
+        self._ensure_loaded()
+        return self.tags.get("encoder")
     
     def get_proportional_dimensions(self, max_size: int = 720) -> Tuple[int, int]:
         """

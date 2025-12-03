@@ -56,15 +56,32 @@ def analyze_video(path: Union[str, Path]) -> Dict[str, Any]:
         "mimetype": mimetype or "video/mp4",
         "mtime": datetime.fromtimestamp(stat.st_mtime),
         "ctime": datetime.fromtimestamp(stat.st_ctime),
-        # AttributeVideo fields
+        # Video metadata fields
         "width": info.width,
         "height": info.height,
         "duration": info.duration,
         "bitrate": info.bitrate,
-        "codec": info.codec,
-        "aspect_ratio": f"{info.width}:{info.height}",
-        "container": path.suffix.lstrip("."),
         "fps": info.fps,
+        "container": info.container,
+        "sar": info.sar,
+        "dar": info.dar,
+        # Video codec info
+        "video_codec": info.video_codec,
+        "video_codec_long": info.video_codec_long,
+        "video_profile": info.video_profile,
+        "video_level": info.video_level,
+        "pix_fmt": info.pix_fmt,
+        "color_space": info.color_space,
+        # Audio info
+        "audio_codec": info.audio_codec,
+        "audio_codec_long": info.audio_codec_long,
+        "audio_sample_rate": info.audio_sample_rate,
+        "audio_channels": info.audio_channels,
+        "audio_bitrate": info.audio_bitrate,
+        # Tags
+        "tags": info.tags,  # Container tags (title, encoder, creation_time, etc)
+        "creation_time": info.creation_time,
+        "encoder": info.encoder,
     }
 
 
