@@ -225,7 +225,8 @@ class VideoGridGenerator(IVideoPreviewGenerator):
             self.grid_size,
             thumb_width,
             thumb_height,
-            output
+            output,
+            quality=self.config.quality
         )
         
         self._cleanup_frames(frame_paths)
@@ -304,7 +305,8 @@ async def generate_video_grid(
     video_path: Path,
     output_path: Optional[Path] = None,
     grid_size: int = 4,
-    max_size: int = 480
+    max_size: int = 480,
+    quality: int = 70
 ) -> Path:
     """
     Convenience function to generate video grid.
@@ -318,6 +320,6 @@ async def generate_video_grid(
     Returns:
         Path to generated grid image
     """
-    config = VideoGridConfig(grid_size=grid_size, max_size=max_size)
+    config = VideoGridConfig(grid_size=grid_size, max_size=max_size, quality=quality)
     generator = VideoGridGenerator(video_path, config, output_path)
     return await generator.generate()

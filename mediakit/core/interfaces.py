@@ -99,6 +99,7 @@ class VideoGridConfig:
     grid_size: int = 4
     max_size: int = 480
     max_parallel: int = 8
+    quality: int = 70
 
 
 @dataclass

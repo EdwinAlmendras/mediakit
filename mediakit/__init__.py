@@ -64,6 +64,8 @@ from .video import (
     generate_video_grid,
     generate_video_sprites,
 )
+from .analyzer import analyze, analyze_video, analyze_photo, generate_id, sha256_file
+from .image.info import ImageInfo
 
 __version__ = "1.0.0"
 
@@ -107,4 +109,12 @@ __all__ = [
     "VideoSpriteGenerator",
     "generate_video_grid",
     "generate_video_sprites",
+    
+    # Analyzer
+    "ImageInfo",
+    "analyze",
+    "analyze_video",
+    "analyze_photo",
+    "generate_id",
+    "sha256_file",
 ]
