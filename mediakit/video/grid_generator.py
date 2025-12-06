@@ -53,7 +53,7 @@ class GridSizeCalculator:
 class FrameExtractor:
     """Extracts frames from video using ffmpeg. Single Responsibility."""
     
-    def __init__(self, max_parallel: int = 8):
+    def __init__(self, max_parallel: int = 2):
         self.semaphore = asyncio.Semaphore(max_parallel)
     
     async def extract_frame(
@@ -320,6 +320,6 @@ async def generate_video_grid(
     Returns:
         Path to generated grid image
     """
-    config = VideoGridConfig(grid_size=grid_size, max_size=max_size, quality=quality)
+    config = VideoGridConfig(grid_size=grid_size, max_size=max_size, quality=quality, max_parallel=2)
     generator = VideoGridGenerator(video_path, config, output_path)
     return await generator.generate()

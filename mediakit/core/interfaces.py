@@ -98,7 +98,7 @@ class VideoGridConfig:
     """Configuration for video grid generation."""
     grid_size: int = 4
     max_size: int = 480
-    max_parallel: int = 8
+    max_parallel: int = 2
     quality: int = 70
 
 
