@@ -53,7 +53,7 @@ class GridSizeCalculator:
 class FrameExtractor:
     """Extracts frames from video using ffmpeg. Single Responsibility."""
     
-    def __init__(self, max_parallel: int = 2):
+    def __init__(self, max_parallel: int = 4):
         self.semaphore = asyncio.Semaphore(max_parallel)
     
     async def extract_frame(

@@ -92,13 +92,13 @@ class PreviewConfig:
     cell_size: int = 400
     randomize: bool = False
 
-
+import os
 @dataclass
 class VideoGridConfig:
     """Configuration for video grid generation."""
     grid_size: int = 4
     max_size: int = 480
-    max_parallel: int = 2
+    max_parallel: int = int(os.getenv("MAX_PARALLEL_GRID_GENERATOR", os.cpu_count()))
     quality: int = 70
 
 
