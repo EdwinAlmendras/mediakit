@@ -20,7 +20,7 @@ Image.MAX_IMAGE_PIXELS = 1_000_000_000
 class ImageProcessor(IImageProcessor):
     """Processes individual images with various transformations."""
     
-    SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp'}
+    SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp', '.jfif'}
     
     def __init__(self, default_quality: int = 90, progressive: bool = True):
         self.default_quality = default_quality
@@ -31,19 +31,32 @@ class ImageProcessor(IImageProcessor):
         """Fix EXIF orientation."""
         return OrientationFixer.fix_file(image_path, output_path)
     
-    def resize(self, image_path: Path, output_path: Path, max_size: int) -> Path:
+    def resize(self, image_path: Path, output_path: Path, max_size: int, resample = Image.Resampling.LANCZOS) -> Path:
         """Resize image to fit within max_size dimension while maintaining aspect ratio."""
         try:
             with Image.open(image_path) as img:
                 fixed_img = OrientationFixer.fix_pil_image(img)
-                resized = self._resize_image(fixed_img, max_size)
+                resized = self._resize_image(fixed_img, max_size, resample)
                 self._save_image(resized, output_path)
             return output_path
         except Exception as e:
             logger.error(f"Error resizing {image_path}: {e}")
             raise
     
-    def _resize_image(self, img: Image.Image, max_size: int) -> Image.Image:
+    
+    def thumb(self, image_path: Path, output_path: Path, max_size: int) -> Path:
+        """Resize image to fit within max_size dimension while maintaining aspect ratio."""
+        try:
+            with Image.open(image_path) as img:
+                fixed_img = OrientationFixer.fix_pil_image(img)
+                resized = fixed_img.thumbnail((max_size,max_size))
+                self._save_image(resized, output_path)
+            return output_path
+        except Exception as e:
+            logger.error(f"Error resizing {image_path}: {e}")
+            raise
+    
+    def _resize_image(self, img: Image.Image, max_size: int, resample = Image.Resampling.LANCZOS) -> Image.Image:
         """Resize image maintaining aspect ratio."""
         w, h = img.size
         
@@ -57,7 +70,7 @@ class ImageProcessor(IImageProcessor):
             new_h = max_size
             new_w = int(w * max_size / h)
         
-        return img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        return img.resize((new_w, new_h), resample)
     
     def _prepare_for_jpeg(self, img: Image.Image) -> Image.Image:
         """Convert image to RGB mode for JPEG saving."""
