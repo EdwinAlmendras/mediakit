@@ -6,16 +6,11 @@ from pathlib import Path
 from typing import Optional, List
 import logging
 
-try:
-    import clip
-    import torch
-    from PIL import Image
-    CLIP_AVAILABLE = True
-except ImportError:
-    CLIP_AVAILABLE = False
-    clip = None
-    torch = None
-    Image = None
+import clip
+import torch
+from PIL import Image
+CLIP_AVAILABLE = True
+
 
 logger = logging.getLogger(__name__)
 
