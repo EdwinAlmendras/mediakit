@@ -4,13 +4,14 @@ Media analyzer - extract metadata from photos and videos.
 import hashlib
 import mimetypes
 from pathlib import Path
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Optional
 from datetime import datetime
 import secrets
 import string
 
 from mediakit.video.info import VideoInfo
 from mediakit.image.info import ImageInfo
+from mediakit.image.embedding import ImageEmbeddingGenerator
 
 
 ALPHABET = string.ascii_letters + string.digits
@@ -85,23 +86,54 @@ def analyze_video(path: Union[str, Path]) -> Dict[str, Any]:
     }
 
 
-def analyze_photo(path: Union[str, Path]) -> Dict[str, Any]:
+# Global embedding generator (lazy loaded)
+_embedding_generator: Optional[ImageEmbeddingGenerator] = None
+
+
+def _get_embedding_generator() -> Optional[ImageEmbeddingGenerator]:
+    """Get or create global embedding generator."""
+    global _embedding_generator
+    if _embedding_generator is None:
+        try:
+            _embedding_generator = ImageEmbeddingGenerator()
+        except ImportError:
+            # CLIP not available, embeddings will be None
+            pass
+    return _embedding_generator
+
+
+def analyze_photo(
+    path: Union[str, Path], 
+    include_embedding: bool = True,
+    phash: Optional[str] = None,
+    avg_color_lab: Optional[list[float]] = None
+) -> Dict[str, Any]:
     """
     Analyze photo file.
     
+    Args:
+        path: Path to image file
+        include_embedding: Whether to generate image embedding (requires CLIP)
+        phash: Pre-calculated pHash (optional, will be calculated if not provided)
+        avg_color_lab: Pre-calculated avg_color_lab (optional, will be calculated if not provided)
+    
     Returns:
-        Dict with Document + AttributePhoto fields
+        Dict with Document + AttributePhoto fields + image_embedding (if available)
     """
     path = Path(path)
     stat = path.stat()
     
-    # Load image info
-    info = ImageInfo(path)
+    # Load image info (pass pre-calculated values to avoid recalculation)
+    info = ImageInfo(path, phash=phash, avg_color_lab=avg_color_lab)
     info.load()
     
     mimetype, _ = mimetypes.guess_type(str(path))
     
-    return {
+    # Use values from ImageInfo (which will use provided values or calculate them)
+    phash_value = info.phash
+    avg_color_value = info.avg_color_lab
+    
+    result = {
         # Document fields
         "source_id": generate_id(),
         "sha256sum": sha256_file(path),
@@ -115,8 +147,21 @@ def analyze_photo(path: Union[str, Path]) -> Dict[str, Any]:
         "camera": info.camera,
         "orientation": info.orientation,
         "creation_date": info.creation_date,
+        "quality": info.quality,  # JPEG quality estimate (1-100) or None
+        "phash": phash_value,  # Perceptual hash for near-duplicate detection
+        "avg_color_lab": avg_color_value,  # Average color in LAB space [L, a, b]
         "tags": info.tags,
     }
+    
+    # Generate embedding if requested and CLIP is available
+    if include_embedding:
+        generator = _get_embedding_generator()
+        if generator:
+            embedding = generator.generate_embedding(path)
+            if embedding:
+                result["image_embedding"] = embedding
+    
+    return result
 
 
 def analyze(path: Union[str, Path]) -> Dict[str, Any]:

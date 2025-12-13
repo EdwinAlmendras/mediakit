@@ -2,10 +2,10 @@
 __pycache__/
 *.py[codz]
 *$py.class
-
+test.py
 # C extensions
 *.so
-
+test_files/
 # Distribution / packaging
 .Python
 build/
