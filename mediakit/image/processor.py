@@ -49,8 +49,8 @@ class ImageProcessor(IImageProcessor):
         try:
             with Image.open(image_path) as img:
                 fixed_img = OrientationFixer.fix_pil_image(img)
-                resized = fixed_img.thumbnail((max_size,max_size))
-                self._save_image(resized, output_path)
+                fixed_img.thumbnail((max_size,max_size))
+                self._save_image(fixed_img, output_path)
             return output_path
         except Exception as e:
             logger.error(f"Error resizing {image_path}: {e}")
