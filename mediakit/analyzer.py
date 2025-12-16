@@ -14,12 +14,11 @@ from mediakit.image.info import ImageInfo
 from mediakit.image.embedding import ImageEmbeddingGenerator
 
 
-ALPHABET = string.ascii_letters + string.digits
+ALPHABET = string.ascii_letters + string.punctuation + string.digits
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff"}
 
-
-def generate_id(length: int = 6) -> str:
+def generate_id(length: int = 8) -> str:
     """Generate random alphanumeric ID."""
     return ''.join(secrets.choice(ALPHABET) for _ in range(length))
 
