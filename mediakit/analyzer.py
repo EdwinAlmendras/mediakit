@@ -14,7 +14,7 @@ from mediakit.image.info import ImageInfo
 from mediakit.image.embedding import ImageEmbeddingGenerator
 
 
-ALPHABET = string.ascii_letters + string.punctuation + string.digits
+ALPHABET = string.ascii_letters + string.digits
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff"}
 
