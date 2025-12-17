@@ -59,6 +59,7 @@ def analyze_video(path: Union[str, Path]) -> Dict[str, Any]:
         # Video metadata fields
         "width": info.width,
         "height": info.height,
+        "rotation": info.rotation,
         "duration": info.duration,
         "bitrate": info.bitrate,
         "fps": info.fps,
