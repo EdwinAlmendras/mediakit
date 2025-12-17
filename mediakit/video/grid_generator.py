@@ -82,7 +82,6 @@ class FrameExtractor:
                 "ffmpeg",
                 "-ss", str(timestamp),
                 "-i", str(video_path),
-                "-vf", f"scale={width}:{height}",
                 "-frames:v", "1",
                 "-q:v", "3",
                 str(output_path)

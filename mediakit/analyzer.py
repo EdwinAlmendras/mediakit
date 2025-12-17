@@ -78,7 +78,6 @@ def analyze_video(path: Union[str, Path]) -> Dict[str, Any]:
         "audio_sample_rate": info.audio_sample_rate,
         "audio_channels": info.audio_channels,
         "audio_bitrate": info.audio_bitrate,
-        # Tags
         "tags": info.tags,  # Container tags (title, encoder, creation_time, etc)
         "creation_time": info.creation_time,
         "encoder": info.encoder,

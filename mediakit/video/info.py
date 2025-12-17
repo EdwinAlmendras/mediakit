@@ -208,13 +208,31 @@ class VideoInfo(IVideoInfoProvider):
     
     @property
     def rotation(self) -> int:
-        """Video rotation in degrees."""
+        """Video rotation in degrees, from tags, or side_data_list with fallback."""
         self._ensure_loaded()
+        # Try from tags first
+        
+        side_data = self._stream_data.get("side_data_list", [])
+        if isinstance(side_data, list):
+            for entry in side_data:
+                if (
+                    isinstance(entry, dict)
+                    and entry.get("side_data_type") == "Display Matrix"
+                    and "rotation" in entry
+                ):
+                    try:
+                        rot_dm = int(entry["rotation"])
+                        return (-rot_dm) % 360 
+                    except (ValueError, TypeError):
+                        pass
         try:
-            rotation = self._stream_data.get("tags", {}).get("rotate", "")
-            return int(rotation) if rotation else 0
-        except (ValueError, KeyError):
-            return 0
+            rotation = self._stream_data.get("tags", {}).get("rotate", None)
+            if rotation not in (None, ""):
+                return int(rotation)
+        except (ValueError, KeyError, TypeError):
+            pass
+
+        return 0
     
     @property
     def dimensions(self) -> VideoDimensions:
@@ -356,7 +374,15 @@ class VideoInfo(IVideoInfoProvider):
     def tags(self) -> dict:
         """Container tags (title, artist, encoder, creation_time, etc)."""
         self._ensure_loaded()
-        return self._format_data.get("tags", {})
+        
+        tags = {}
+        # Merge all tags from all streams, later values overwrite earlier ones.
+        for stream in self._all_streams:
+            stream_tags = stream.get("tags", {})
+            if stream_tags:
+                tags.update(stream_tags)
+        
+        return tags
     
     @property
     def video_tags(self) -> dict:
@@ -377,7 +403,7 @@ class VideoInfo(IVideoInfoProvider):
     def creation_time(self) -> Optional[str]:
         """Creation time from container tags."""
         self._ensure_loaded()
-        return self.tags.get("creation_time")
+        return self.video_tags.get("creation_time") or self.tags.get("creation_time")
     
     @property
     def encoder(self) -> Optional[str]:
