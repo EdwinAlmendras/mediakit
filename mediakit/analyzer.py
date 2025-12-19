@@ -18,7 +18,7 @@ ALPHABET = string.ascii_letters + string.digits
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff"}
 
-def generate_id(length: int = 8) -> str:
+def generate_id(length: int = 12) -> str:
     """Generate random alphanumeric ID."""
     return ''.join(secrets.choice(ALPHABET) for _ in range(length))
 
