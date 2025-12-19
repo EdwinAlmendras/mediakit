@@ -3,12 +3,8 @@ Centralized media file extensions.
 
 Used by: mediakit, uploader, social, kmp
 """
-
-VIDEO_EXTENSIONS = {
-    '.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v',
-    '.3gp', '.ogv', '.mts', '.m2ts', '.ts', '.mpeg', '.mpg', '.mp2',
-    '.mpe', '.mpv', '.m4p', '.m4b', '.m4r', '.f4v', '.f4p', '.f4a', '.f4b',
-}
+video_extensions = ['webm', 'mkv', 'flv', 'vob', 'ogv', 'ogg', 'rrc', 'gifv', 'mng', 'mov', 'avi', 'qt', 'wmv', 'yuv', 'rm', 'asf', 'amv', 'mp4', 'm4p', 'm4v', 'mpg', 'mp2', 'mpeg', 'mpe', 'mpv', 'm4v', 'svi', '3gp', '3g2', 'mxf', 'roq', 'nsv', 'flv', 'f4v', 'f4p', 'f4a', 'f4b', 'mod'] 
+VIDEO_EXTENSIONS = set(f".{extension}" for extension in video_extensions)
 
 IMAGE_EXTENSIONS = {
     '.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.tif',

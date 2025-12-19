@@ -13,10 +13,9 @@ from mediakit.video.info import VideoInfo
 from mediakit.image.info import ImageInfo
 from mediakit.image.embedding import ImageEmbeddingGenerator
 
+from mediakit.core.extensions import VIDEO_EXTENSIONS, IMAGE_EXTENSIONS
 
-ALPHABET = string.ascii_letters + string.digits
-VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".webm", ".flv", ".wmv", ".m4v"}
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff"}
+ALPHABET = string.ascii_letters + string.digits 
 
 def generate_id(length: int = 12) -> str:
     """Generate random alphanumeric ID."""
