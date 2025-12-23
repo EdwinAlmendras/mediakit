@@ -26,6 +26,10 @@ def estimate_quality(jpeg_table):
     scales = jpeg_table * JPEG_LUMA_BASE_INV
     scale = np.median(scales)
 
+    # Guard against division by zero
+    if scale <= 0:
+        return 100
+    
     # Optimizar cálculo de quality
     if scale <= 100:
         quality = 100.0 - scale * 0.5

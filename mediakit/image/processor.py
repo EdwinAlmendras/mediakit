@@ -60,6 +60,11 @@ class ImageProcessor(IImageProcessor):
         """Resize image maintaining aspect ratio."""
         w, h = img.size
         
+        # Guard against invalid dimensions
+        if w <= 0 or h <= 0:
+            logger.warning(f"Invalid image dimensions: {w}x{h}")
+            return img
+        
         if w <= max_size and h <= max_size:
             return img
         
@@ -69,6 +74,10 @@ class ImageProcessor(IImageProcessor):
         else:
             new_h = max_size
             new_w = int(w * max_size / h)
+        
+        # Ensure minimum dimensions of 1
+        new_w = max(1, new_w)
+        new_h = max(1, new_h)
         
         return img.resize((new_w, new_h), resample)
     

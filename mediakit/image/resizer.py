@@ -62,13 +62,18 @@ def _resize_and_save(img: Image.Image, output_path: Path, max_size: int) -> None
     """Resize image and save to output path."""
     w, h = img.size
     
+    # Guard against invalid dimensions
+    if w <= 0 or h <= 0:
+        logger.warning(f"Invalid image dimensions: {w}x{h}, skipping")
+        return
+    
     if w > max_size or h > max_size:
         if w > h:
             new_w = max_size
-            new_h = int(h * max_size / w)
+            new_h = max(1, int(h * max_size / w))
         else:
             new_h = max_size
-            new_w = int(w * max_size / h)
+            new_w = max(1, int(w * max_size / h))
         resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
     else:
         resized = img

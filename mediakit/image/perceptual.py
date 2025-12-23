@@ -14,8 +14,11 @@ except ImportError:
 
 try:
     from PIL import Image
+    from PIL.ImageFile import ImageFile
     import numpy as np
     PILLOW_AVAILABLE = True
+    # Allow loading truncated images
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
 except ImportError:
     PILLOW_AVAILABLE = False
     Image = None
@@ -103,6 +106,10 @@ def calculate_phash(image_path: Path = None, image: Image.Image = None) -> Optio
                 logger.debug(f"Calculated pHash for {image_path.name}: {phash_str}")
                 return phash_str
             
+    except OSError as e:
+        # Truncated/corrupt images - expected, log as warning without traceback
+        logger.warning(f"Skipping pHash for corrupt image: {e}")
+        return None
     except Exception as e:
         logger.error(f"Error calculating pHash: {e}", exc_info=True)
         return None
@@ -243,6 +250,10 @@ def calculate_avg_color_lab(image_path: Path = None, image: Image.Image = None) 
                 logger.debug(f"Calculated avg_color LAB for {image_path.name}: {lab}")
                 return lab
             
+    except OSError as e:
+        # Truncated/corrupt images - expected, log as warning without traceback
+        logger.warning(f"Skipping avg_color LAB for corrupt image: {e}")
+        return None
     except Exception as e:
         logger.error(f"Error calculating avg_color LAB: {e}", exc_info=True)
         return None
