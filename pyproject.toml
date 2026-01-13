@@ -50,21 +50,16 @@ clip = [
     "regex",
     "tqdm",
 ]
-
-[project.optional-dependencies]
+perceptual = [
+    "opencv-python>=4.8.0",
+    "imagehash>=4.3.1",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.21.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",
-]
-clip = [
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "ftfy",
-    "regex",
-    "tqdm",
 ]
 
 [project.urls]

@@ -7,10 +7,19 @@ import logging
 
 try:
     import imagehash
+    from imagehash import ImageHash
     IMAGEHASH_AVAILABLE = True
 except ImportError:
     IMAGEHASH_AVAILABLE = False
     imagehash = None
+    ImageHash = None
+
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+    cv2 = None
 
 try:
     from PIL import Image
@@ -27,12 +36,13 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-import cv2
-import numpy as np
-from PIL import Image
-from imagehash import ImageHash
+
 
 def fast_phash(img, hash_size=8, highfreq_factor=4):
+    if not CV2_AVAILABLE:
+        raise ImportError("OpenCV (cv2) is required for fast_phash. Install with: pip install opencv-python")
+    if not IMAGEHASH_AVAILABLE:
+        raise ImportError("imagehash is required for fast_phash. Install with: pip install imagehash")
     # Convertir imagen a escala de grises
     img = img.convert('L')
     
