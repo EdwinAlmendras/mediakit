@@ -80,6 +80,8 @@ class FrameExtractor:
         async with self.semaphore:
             cmd = [
                 "ffmpeg",
+                "-y",
+                "-loglevel", "error",
                 "-ss", str(timestamp),
                 "-i", str(video_path),
                 "-frames:v", "1",
