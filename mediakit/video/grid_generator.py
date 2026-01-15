@@ -204,9 +204,8 @@ class VideoGridGenerator(IVideoPreviewGenerator):
         """
         output = output_path or self.output_path
         if output is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-            temp_file.close()
-            output = Path(temp_file.name)
+            temp_dir = Path(tempfile.mkdtemp(prefix="grid_output_"))
+            output = temp_dir / "grid.jpg"
         
         if self.video_info is None:
             self.video_info = VideoInfo(self.video_path)
