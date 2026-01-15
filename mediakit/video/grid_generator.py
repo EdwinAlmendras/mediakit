@@ -204,7 +204,7 @@ class VideoGridGenerator(IVideoPreviewGenerator):
         """
         output = output_path or self.output_path
         if output is None:
-            temp_dir = Path(tempfile.mkdtemp(prefix="grid_output_"))
+            temp_dir = Path(tempfile.mkdtemp(prefix="grid_output_", dir="/var/tmp"))
             output = temp_dir / "grid.jpg"
         
         if self.video_info is None:
@@ -242,7 +242,7 @@ class VideoGridGenerator(IVideoPreviewGenerator):
         duration = self.video_info.duration
         time_interval = (duration - 1) / frames_needed
         
-        persist_dir = Path(tempfile.mkdtemp(prefix="grid_frames_"))
+        persist_dir = Path(tempfile.mkdtemp(prefix="grid_frames_", dir="/var/tmp"))
         frame_paths = []
         
         thumb_width, thumb_height = self._get_thumbnail_dimensions()
