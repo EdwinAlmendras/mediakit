@@ -96,8 +96,8 @@ def _fix_corrupt_image(image_path: Path, output_info: Dict[str, Tuple[Path, int]
     try:
         image_path.rename(corrupt_backup)
         
-        with tempfile.NamedTemporaryFile(suffix=image_path.suffix, delete=False) as temp_file:
-            temp_path = temp_file.name
+        temp_dir = Path(tempfile.mkdtemp(prefix="repair_", dir="/var/tmp"))
+        temp_path = str(temp_dir / f"repaired{image_path.suffix}")
         
         cmd = ["convert", str(corrupt_backup), "-strip", "-interlace", "none", "-colorspace", "sRGB", temp_path]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)

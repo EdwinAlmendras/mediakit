@@ -146,9 +146,8 @@ class ThumbnailGenerator(IThumbnailGenerator):
     
     def _create_temp_output(self) -> Path:
         """Create temporary output file."""
-        temp_file = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-        temp_file.close()
-        return Path(temp_file.name)
+        temp_dir = Path(tempfile.mkdtemp(prefix="thumb_", dir="/var/tmp"))
+        return temp_dir / "thumbnail.jpg"
     
     def _get_duration(self, video_path: Path) -> float:
         """Get video duration."""

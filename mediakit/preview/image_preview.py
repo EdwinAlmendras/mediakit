@@ -126,9 +126,8 @@ class ImagePreviewGenerator(IPreviewGenerator):
         grid = self.composer.compose(selected, rows, cols)
         
         if output_path is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
-            output_path = Path(temp_file.name)
-            temp_file.close()
+            temp_dir = Path(tempfile.mkdtemp(prefix='preview_', dir='/var/tmp'))
+            output_path = temp_dir / 'grid.jpg'
         
         grid.save(output_path, 'JPEG', quality=85, optimize=True)
         
@@ -160,9 +159,8 @@ class ImagePreviewGenerator(IPreviewGenerator):
         grid = self.composer.compose(selected, rows, cols)
         
         if output_path is None:
-            temp_file = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
-            output_path = Path(temp_file.name)
-            temp_file.close()
+            temp_dir = Path(tempfile.mkdtemp(prefix='preview_', dir='/var/tmp'))
+            output_path = temp_dir / 'grid.jpg'
         
         grid.save(output_path, 'JPEG', quality=85, optimize=True)
         
