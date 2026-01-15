@@ -4,6 +4,7 @@ Creates visual grid previews from video frames.
 Follows Facade Pattern - orchestrates frame extraction and composition.
 """
 import asyncio
+import os
 import tempfile
 from pathlib import Path
 from typing import Optional, Tuple, List
@@ -53,8 +54,9 @@ class GridSizeCalculator:
 class FrameExtractor:
     """Extracts frames from video using ffmpeg. Single Responsibility."""
     
-    def __init__(self, max_parallel: int = 4):
-        self.semaphore = asyncio.Semaphore(max_parallel)
+    def __init__(self, max_parallel: int = 0):
+        effective = max_parallel if max_parallel > 0 else min(os.cpu_count() or 4, 8)
+        self.semaphore = asyncio.Semaphore(max(2, effective))
     
     async def extract_frame(
         self,
@@ -241,40 +243,29 @@ class VideoGridGenerator(IVideoPreviewGenerator):
         duration = self.video_info.duration
         time_interval = (duration - 1) / frames_needed
         
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            frame_paths = []
+        persist_dir = Path(tempfile.mkdtemp(prefix="grid_frames_"))
+        frame_paths = []
+        
+        thumb_width, thumb_height = self._get_thumbnail_dimensions()
+        
+        tasks = []
+        for i in range(frames_needed):
+            timestamp = 1.0 if i == 0 else i * time_interval
+            frame_path = persist_dir / f"frame_{i:02d}.jpg"
+            frame_paths.append(frame_path)
             
-            thumb_width, thumb_height = self._get_thumbnail_dimensions()
-            
-            tasks = []
-            for i in range(frames_needed):
-                timestamp = 1.0 if i == 0 else i * time_interval
-                frame_path = temp_path / f"frame_{i:02d}.jpg"
-                frame_paths.append(frame_path)
-                
-                task = self.frame_extractor.extract_frame(
-                    self.video_path,
-                    frame_path,
-                    timestamp,
-                    thumb_width,
-                    thumb_height
-                )
-                tasks.append(task)
-            
-            await asyncio.gather(*tasks)
-            
-            persistent_paths = []
-            persist_dir = Path(tempfile.mkdtemp(prefix="grid_frames_"))
-            for i, fp in enumerate(frame_paths):
-                if fp.exists():
-                    new_path = persist_dir / fp.name
-                    fp.rename(new_path)
-                    persistent_paths.append(new_path)
-                else:
-                    persistent_paths.append(fp)
-            
-            return persistent_paths
+            task = self.frame_extractor.extract_frame(
+                self.video_path,
+                frame_path,
+                timestamp,
+                thumb_width,
+                thumb_height
+            )
+            tasks.append(task)
+        
+        await asyncio.gather(*tasks)
+        
+        return frame_paths
     
     def _get_thumbnail_dimensions(self) -> Tuple[int, int]:
         """Get thumbnail dimensions accounting for rotation."""
@@ -322,6 +313,6 @@ async def generate_video_grid(
     Returns:
         Path to generated grid image
     """
-    config = VideoGridConfig(grid_size=grid_size, max_size=max_size, quality=quality, max_parallel=2)
+    config = VideoGridConfig(grid_size=grid_size, max_size=max_size, quality=quality, max_parallel=0)
     generator = VideoGridGenerator(video_path, config, output_path)
     return await generator.generate()
