@@ -11,7 +11,6 @@ import string
 
 from mediakit.video.info import VideoInfo
 from mediakit.image.info import ImageInfo
-from mediakit.image.embedding import ImageEmbeddingGenerator
 
 from mediakit.core.extensions import VIDEO_EXTENSIONS, IMAGE_EXTENSIONS
 
@@ -84,25 +83,8 @@ def analyze_video(path: Union[str, Path]) -> Dict[str, Any]:
     }
 
 
-# Global embedding generator (lazy loaded)
-_embedding_generator: Optional[ImageEmbeddingGenerator] = None
-
-
-def _get_embedding_generator() -> Optional[ImageEmbeddingGenerator]:
-    """Get or create global embedding generator."""
-    global _embedding_generator
-    if _embedding_generator is None:
-        try:
-            _embedding_generator = ImageEmbeddingGenerator()
-        except ImportError:
-            # CLIP not available, embeddings will be None
-            pass
-    return _embedding_generator
-
-
 def analyze_photo(
     path: Union[str, Path], 
-    include_embedding: bool = True,
     phash: Optional[str] = None,
     avg_color_lab: Optional[list[float]] = None
 ) -> Dict[str, Any]:
@@ -111,12 +93,11 @@ def analyze_photo(
     
     Args:
         path: Path to image file
-        include_embedding: Whether to generate image embedding (requires CLIP)
         phash: Pre-calculated pHash (optional, will be calculated if not provided)
         avg_color_lab: Pre-calculated avg_color_lab (optional, will be calculated if not provided)
     
     Returns:
-        Dict with Document + AttributePhoto fields + image_embedding (if available)
+        Dict with Document + AttributePhoto fields
     """
     path = Path(path)
     stat = path.stat()
@@ -150,14 +131,6 @@ def analyze_photo(
         "avg_color_lab": avg_color_value,  # Average color in LAB space [L, a, b]
         "tags": info.tags,
     }
-    
-    # Generate embedding if requested and CLIP is available
-    if include_embedding:
-        generator = _get_embedding_generator()
-        if generator:
-            embedding = generator.generate_embedding(path)
-            if embedding:
-                result["image_embedding"] = embedding
     
     return result
 

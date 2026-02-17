@@ -52,7 +52,6 @@ from .image import (
     SetResizer,
     ResizeConfig,
     OrientationFixer,
-    ImageEmbeddingGenerator,
 )
 from .preview import ImagePreviewGenerator, GridConfig
 from .archive import SevenZipArchiver, ArchiveConfig
@@ -104,7 +103,6 @@ __all__ = [
     "SetResizer",
     "ResizeConfig",
     "OrientationFixer",
-    "ImageEmbeddingGenerator",
     
     # Preview generation
     "ImagePreviewGenerator",

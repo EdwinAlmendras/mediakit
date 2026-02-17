@@ -6,7 +6,6 @@ from .processor import ImageProcessor
 from .selector import ImageSelector
 from .resizer import SetResizer, ResizeConfig
 from .info import ImageInfo
-from .embedding import ImageEmbeddingGenerator
 from .quality import estimate_quality
 from .perceptual import calculate_phash, calculate_avg_color_lab
 
@@ -17,7 +16,6 @@ __all__ = [
     'SetResizer',
     'ResizeConfig',
     'ImageInfo',
-    'ImageEmbeddingGenerator',
     'estimate_quality',
     'calculate_phash',
     'calculate_avg_color_lab',
