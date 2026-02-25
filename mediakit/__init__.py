@@ -78,7 +78,7 @@ from .core.extensions import (
     get_media_type,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Main facade

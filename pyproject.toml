@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mediakit"
-version = "1.0.0"
+version = "1.0.1"
 description = "Professional toolkit for processing media sets including images and videos"
 readme = "README.md"
 license = {text = "MIT"}
@@ -40,6 +40,7 @@ dependencies = [
     "natsort>=8.0.0",
     "imagehash>=4.3.1",
     "numpy>=1.24.0",
+    "opencv-python>=4.8.0",
 ]
 
 [project.optional-dependencies]
@@ -47,10 +48,15 @@ perceptual = [
     "opencv-python>=4.8.0",
     "imagehash>=4.3.1",
 ]
+all = [
+    "opencv-python>=4.8.0",
+    "imagehash>=4.3.1",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.14.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",
 ]
