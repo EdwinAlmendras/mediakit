@@ -88,6 +88,7 @@ class FrameExtractor:
                 "-i", str(video_path),
                 "-frames:v", "1",
                 "-update", "1",
+                "-strict", "unofficial",
                 "-q:v", "3",
                 str(output_path)
             ]

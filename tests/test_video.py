@@ -17,7 +17,7 @@ from mediakit.video import (
     VideoCodecDetector,
     VideoDurationProvider,
 )
-from mediakit.video.grid_generator import GridSizeCalculator
+from mediakit.video.grid_generator import FrameExtractor, GridSizeCalculator
 from mediakit.video.thumbnail import FrameValidator, StepCalculator
 
 
@@ -181,6 +181,44 @@ class TestThumbnailGenerator:
         assert output.suffix == ".jpg"
         
         output.unlink(missing_ok=True)
+
+
+class TestFrameExtractor:
+    """Tests for FrameExtractor ffmpeg command composition."""
+
+    @pytest.mark.asyncio
+    async def test_extract_frame_adds_strict_unofficial_flag(self, monkeypatch, temp_dir):
+        class _DummyProcess:
+            returncode = 0
+
+            async def communicate(self):
+                return b"", b""
+
+        captured = {}
+
+        async def _fake_create_subprocess_exec(*cmd, **kwargs):
+            captured["cmd"] = cmd
+            return _DummyProcess()
+
+        monkeypatch.setattr(
+            "mediakit.video.grid_generator.asyncio.create_subprocess_exec",
+            _fake_create_subprocess_exec,
+        )
+
+        extractor = FrameExtractor(max_parallel=1)
+        ok = await extractor.extract_frame(
+            video_path=temp_dir / "in.mp4",
+            output_path=temp_dir / "out.jpg",
+            timestamp=1.0,
+            width=360,
+            height=640,
+        )
+
+        assert ok is True
+        cmd = list(captured["cmd"])
+        assert "-strict" in cmd
+        strict_index = cmd.index("-strict")
+        assert cmd[strict_index + 1] == "unofficial"
 
 
 class TestVideoConverter:
